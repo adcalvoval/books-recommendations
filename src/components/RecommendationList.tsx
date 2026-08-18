@@ -45,9 +45,9 @@ const RecommendationList: React.FC<RecommendationListProps> = ({
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 20) return '#4CAF50'; // Green
-    if (score >= 10) return '#FF9800'; // Orange
-    return '#757575'; // Gray
+    if (score >= 20) return '#3f6b4a'; // Forest green
+    if (score >= 10) return '#a9762a'; // Gold/amber
+    return '#8a7a63'; // Muted parchment brown
   };
 
   const isBookInLibrary = (book: BookRecommendation) => {

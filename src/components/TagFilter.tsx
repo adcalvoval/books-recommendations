@@ -67,20 +67,6 @@ const TagFilter: React.FC<TagFilterProps> = ({ books, selectedTags, onTagsChange
     setSearchTerm('');
   };
 
-  const getCategoryColor = (category: string): string => {
-    const colors: Record<string, string> = {
-      genre: '#667eea',
-      theme: '#f093fb',
-      setting: '#4facfe',
-      mood: '#43e97b',
-      length: '#fa709a',
-      era: '#ffc837',
-      style: '#a8edea',
-      audience: '#d299c2'
-    };
-    return colors[category] || '#6c757d';
-  };
-
   const getCategoryIcon = (category: string): string => {
     const icons: Record<string, string> = {
       genre: '🎭',
@@ -134,7 +120,6 @@ const TagFilter: React.FC<TagFilterProps> = ({ books, selectedTags, onTagsChange
                     key={tag}
                     type="button"
                     className={`tag tag-${category} ${selectedTags.includes(tag) ? 'selected' : ''}`}
-                    style={{ backgroundColor: getCategoryColor(category) }}
                     onClick={() => handleTagClick(tag)}
                     title={`${count} book${count !== 1 ? 's' : ''}`}
                     aria-pressed={selectedTags.includes(tag)}

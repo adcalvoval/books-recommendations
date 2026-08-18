@@ -17,20 +17,6 @@ const BookTags: React.FC<BookTagsProps> = ({
   const displayTags = tags.slice(0, maxTags);
   const hiddenCount = Math.max(0, tags.length - maxTags);
 
-  const getCategoryColor = (category: BookTag['category']): string => {
-    const colors = {
-      genre: '#667eea',      // Blue
-      theme: '#f093fb',      // Pink
-      setting: '#4facfe',    // Light Blue
-      mood: '#43e97b',       // Green
-      length: '#fa709a',     // Pink-Red
-      era: '#ffecd2',        // Yellow
-      style: '#a8edea',      // Cyan
-      audience: '#d299c2'    // Purple
-    };
-    return colors[category];
-  };
-
   const getCategoryIcon = (category: BookTag['category']): string => {
     const icons = {
       genre: '🎭',
@@ -55,10 +41,7 @@ const BookTags: React.FC<BookTagsProps> = ({
         <span
           key={`${tag.name}-${index}`}
           className={`tag tag-${tag.category} ${onTagClick ? 'tag-clickable' : ''}`}
-          style={{ 
-            backgroundColor: getCategoryColor(tag.category),
-            opacity: 0.7 + (tag.confidence * 0.3) // Higher confidence = more opaque
-          }}
+          style={{ opacity: 0.7 + (tag.confidence * 0.3) }} // Higher confidence = more opaque
           onClick={() => onTagClick?.(tag.name)}
           title={`${getCategoryIcon(tag.category)} ${tag.category.charAt(0).toUpperCase() + tag.category.slice(1)}${showConfidence ? ` - ${formatConfidence(tag.confidence)} confidence` : ''}`}
         >

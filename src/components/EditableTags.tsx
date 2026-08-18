@@ -66,20 +66,6 @@ const EditableTags: React.FC<EditableTagsProps> = ({
     }
   };
 
-  const getCategoryColor = (category: BookTag['category']): string => {
-    const colors = {
-      genre: '#667eea',
-      theme: '#f093fb',
-      setting: '#4facfe',
-      mood: '#43e97b',
-      length: '#fa709a',
-      era: '#ffc837',
-      style: '#a8edea',
-      audience: '#d299c2'
-    };
-    return colors[category];
-  };
-
   const getConfidenceOpacity = (confidence: number): number => {
     return 0.7 + (confidence * 0.3);
   };
@@ -90,11 +76,8 @@ const EditableTags: React.FC<EditableTagsProps> = ({
         {tags.map((tag, index) => (
           <span
             key={`${tag.name}-${tag.category}-${index}`}
-            className="tag tag-editable"
-            style={{ 
-              backgroundColor: getCategoryColor(tag.category),
-              opacity: getConfidenceOpacity(tag.confidence)
-            }}
+            className={`tag tag-editable tag-${tag.category}`}
+            style={{ opacity: getConfidenceOpacity(tag.confidence) }}
             title={`${tag.category} - ${Math.round(tag.confidence * 100)}% confidence`}
           >
             {tag.name}

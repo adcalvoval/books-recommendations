@@ -116,11 +116,11 @@ const generateFallbackCover = (book: Book, size: string): string => {
     large: { width: 160, height: 240 }
   }[size] || { width: 100, height: 150 };
 
-  // Generate a color based on the book title
+  // Generate a color based on the book title, evoking a shelf of leather-bound spines
   const colors = [
-    '#667eea', '#f093fb', '#4facfe', '#43e97b', 
-    '#fa709a', '#ffc837', '#a8edea', '#d299c2',
-    '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4'
+    '#7c2d3a', '#3f6b4a', '#2c4260', '#6b3f63',
+    '#8b5e34', '#96691f', '#b5573a', '#2f6b5f',
+    '#556b3f', '#7a3b2e', '#4a3f6b', '#3a2a1c'
   ];
   
   const colorIndex = book.title.length % colors.length;
@@ -138,13 +138,13 @@ const generateFallbackCover = (book: Book, size: string): string => {
     ctx.fillRect(0, 0, dimensions.width, dimensions.height);
     
     // Border
-    ctx.strokeStyle = '#ffffff';
+    ctx.strokeStyle = '#f3e7d3';
     ctx.lineWidth = 2;
     ctx.strokeRect(1, 1, dimensions.width - 2, dimensions.height - 2);
-    
+
     // Title text
-    ctx.fillStyle = '#ffffff';
-    ctx.font = `${Math.max(10, dimensions.width / 12)}px Arial`;
+    ctx.fillStyle = '#f3e7d3';
+    ctx.font = `${Math.max(10, dimensions.width / 12)}px Georgia, serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     
