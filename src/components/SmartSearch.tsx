@@ -295,24 +295,33 @@ const SmartSearch: React.FC<SmartSearchProps> = ({
             onFocus={() => setShowSuggestions(suggestions.length > 0)}
             placeholder={placeholder}
             className="search-input"
+            role="combobox"
+            aria-expanded={showSuggestions && suggestions.length > 0}
+            aria-controls="search-suggestions-listbox"
+            aria-autocomplete="list"
+            aria-activedescendant={selectedSuggestionIndex >= 0 ? `search-suggestion-${selectedSuggestionIndex}` : undefined}
+            aria-label="Search for books"
           />
           <div className="search-actions">
             {query && (
-              <button onClick={handleClear} className="search-clear" title="Clear search">
+              <button onClick={handleClear} className="search-clear" title="Clear search" aria-label="Clear search">
                 ✕
               </button>
             )}
-            <button onClick={handleSearch} className="search-submit" title="Search">
+            <button onClick={handleSearch} className="search-submit" title="Search" aria-label="Search">
               🔍
             </button>
           </div>
         </div>
-        
+
         {showSuggestions && suggestions.length > 0 && (
-          <div ref={suggestionsRef} className="search-suggestions">
+          <div ref={suggestionsRef} className="search-suggestions" role="listbox" id="search-suggestions-listbox">
             {suggestions.map((suggestion, index) => (
               <button
                 key={index}
+                id={`search-suggestion-${index}`}
+                role="option"
+                aria-selected={index === selectedSuggestionIndex}
                 className={`suggestion-item ${index === selectedSuggestionIndex ? 'selected' : ''}`}
                 onClick={() => handleSuggestionClick(suggestion)}
                 onMouseEnter={() => setSelectedSuggestionIndex(index)}

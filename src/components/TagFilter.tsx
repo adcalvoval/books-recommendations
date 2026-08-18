@@ -130,15 +130,17 @@ const TagFilter: React.FC<TagFilterProps> = ({ books, selectedTags, onTagsChange
               </h5>
               <div className="available-tags">
                 {tags.map(({ tag, count }) => (
-                  <span
+                  <button
                     key={tag}
+                    type="button"
                     className={`tag tag-${category} ${selectedTags.includes(tag) ? 'selected' : ''}`}
                     style={{ backgroundColor: getCategoryColor(category) }}
                     onClick={() => handleTagClick(tag)}
                     title={`${count} book${count !== 1 ? 's' : ''}`}
+                    aria-pressed={selectedTags.includes(tag)}
                   >
                     {tag} ({count})
-                  </span>
+                  </button>
                 ))}
               </div>
             </div>

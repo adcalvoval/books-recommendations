@@ -103,6 +103,7 @@ const EditableText: React.FC<EditableTextProps> = ({
               disabled={isSaving}
               className="btn-save"
               title="Save (Ctrl+Enter)"
+              aria-label={isSaving ? 'Saving' : 'Save'}
             >
               {isSaving ? '⏳' : '✓'}
             </button>
@@ -112,6 +113,7 @@ const EditableText: React.FC<EditableTextProps> = ({
                 disabled={isSaving}
                 className="btn-delete"
                 title="Delete completely"
+                aria-label={`Delete ${label.toLowerCase()}`}
               >
                 🗑️
               </button>
@@ -121,6 +123,7 @@ const EditableText: React.FC<EditableTextProps> = ({
               disabled={isSaving}
               className="btn-cancel"
               title="Cancel (Esc)"
+              aria-label="Cancel"
             >
               ✕
             </button>
@@ -171,6 +174,7 @@ const EditableText: React.FC<EditableTextProps> = ({
             onClick={() => setIsEditing(true)}
             className="btn-edit"
             title={`Edit ${label.toLowerCase()}`}
+            aria-label={`Edit ${label.toLowerCase()}`}
           >
             ✏️
           </button>
@@ -180,15 +184,25 @@ const EditableText: React.FC<EditableTextProps> = ({
               disabled={isSaving}
               className="btn-delete-view"
               title={`Delete ${label.toLowerCase()}`}
+              aria-label={`Delete ${label.toLowerCase()}`}
             >
               🗑️
             </button>
           )}
         </div>
       </div>
-      <div 
+      <div
         className="editable-text-content"
         onClick={() => setIsEditing(true)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setIsEditing(true);
+          }
+        }}
+        role="button"
+        tabIndex={0}
+        aria-label={`${value ? 'Edit' : 'Add'} ${label.toLowerCase()}`}
       >
         {value ? (
           <p>{value}</p>

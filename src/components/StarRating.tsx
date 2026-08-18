@@ -53,23 +53,27 @@ const StarRating: React.FC<StarRatingProps> = ({
             {/* Half star clickable area */}
             <button
               type="button"
+              role="radio"
+              aria-checked={rating === halfStarValue}
               className="star-half-click"
               onClick={() => handleStarClick(halfStarValue)}
-              onMouseEnter={() => {}} // Could add hover preview
+              aria-label={`Rate ${halfStarValue} stars`}
               title={`Rate ${halfStarValue} stars`}
             />
             {/* Full star clickable area */}
             <button
               type="button"
+              role="radio"
+              aria-checked={rating === starValue}
               className="star-full-click"
               onClick={() => handleStarClick(starValue)}
-              onMouseEnter={() => {}} // Could add hover preview
+              aria-label={`Rate ${starValue} stars`}
               title={`Rate ${starValue} stars`}
             />
           </>
         )}
-        
-        <div className={`star ${starType === 'full' ? 'star-filled' : starType === 'half' ? 'star-half-filled' : 'star-empty'}`}>
+
+        <div className={`star ${starType === 'full' ? 'star-filled' : starType === 'half' ? 'star-half-filled' : 'star-empty'}`} aria-hidden="true">
           {starType === 'half' ? (
             <div className="star-half-wrapper">
               <span className="star-half-background">★</span>
@@ -84,12 +88,16 @@ const StarRating: React.FC<StarRatingProps> = ({
   };
 
   return (
-    <div className={`star-rating ${getSizeClass()} ${isInteractive ? 'interactive' : 'readonly'} ${className}`}>
+    <div
+      className={`star-rating ${getSizeClass()} ${isInteractive ? 'interactive' : 'readonly'} ${className}`}
+      role={isInteractive ? 'radiogroup' : 'img'}
+      aria-label={`Rated ${rating.toFixed(1)} out of ${maxStars} stars`}
+    >
       <div className="stars-container">
         {Array.from({ length: maxStars }, (_, index) => renderStar(index))}
       </div>
       {showNumber && (
-        <span className="rating-number">
+        <span className="rating-number" aria-hidden="true">
           ({rating.toFixed(1)}/5)
         </span>
       )}

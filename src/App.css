@@ -1244,6 +1244,7 @@
 .available-tags .tag {
   opacity: 0.6;
   cursor: pointer;
+  font: inherit;
 }
 
 .available-tags .tag:hover,
@@ -1830,6 +1831,51 @@
   
   .file-upload-label {
     padding: 2rem 1rem;
+  }
+}
+
+/* Small phones */
+@media (max-width: 480px) {
+  .app-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .app-header p {
+    font-size: 0.95rem;
+  }
+
+  .section-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .book-card,
+  .recommendation-card {
+    flex-direction: column;
+  }
+
+  .book-card .book-cover,
+  .recommendation-card .book-cover {
+    align-self: center;
+  }
+
+  .search-examples {
+    gap: 0.5rem;
+  }
+
+  .example-query {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+  }
+
+  .modal-header h3 {
+    font-size: 1.25rem;
+  }
+
+  .btn-add-to-library,
+  .btn-reject,
+  .btn-like {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
   }
 }
 

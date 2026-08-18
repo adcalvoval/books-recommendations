@@ -1,4 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { checkRateLimit, getClientKey } from './_lib/rateLimit';
+import { isAllowedOrigin } from './_lib/origin';
 
 interface IncomingBook {
   title: string;
@@ -42,6 +44,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
+  if (!isAllowedOrigin(req.headers.origin as string | undefined)) {
+    res.status(403).json({ error: 'Origin not allowed' });
+    return;
+  }
+
+  const clientKey = getClientKey(req);
+  const rateLimit = checkRateLimit(clientKey);
+  if (!rateLimit.allowed) {
+    res.setHeader('Retry-After', String(rateLimit.retryAfterSeconds));
+    res.status(429).json({ error: 'Too many requests. Please try again later.' });
+    return;
+  }
+
   const apiKey = process.env.CLAUDE_API_KEY;
   if (!apiKey) {
     res.status(500).json({
@@ -50,7 +65,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  const { query, userBooks } = (req.body ?? {}) as {
+  const { query, userBooks: rawUserBooks } = (req.body ?? {}) as {
     query?: unknown;
     userBooks?: IncomingBook[];
   };
@@ -64,9 +79,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  const libraryContext = Array.isArray(userBooks)
+  const userBooks = Array.isArray(rawUserBooks) ? rawUserBooks.slice(0, MAX_LIBRARY_CONTEXT) : undefined;
+
+  const libraryContext = userBooks
     ? userBooks
-        .slice(0, MAX_LIBRARY_CONTEXT)
         .map((b) => `- "${b.title}" by ${b.author}${b.genre?.length ? ` (${b.genre.join(', ')})` : ''}${b.rating ? `, rated ${b.rating}/5` : ''}`)
         .join('\n')
     : '';
@@ -125,9 +141,7 @@ Recommend up to 8 real, published books that best match their request. Respond w
     }
 
     const existingKeys = new Set(
-      (Array.isArray(userBooks) ? userBooks : []).map(
-        (b) => `${b.title.toLowerCase().trim()}::${b.author.toLowerCase().trim()}`
-      )
+      (userBooks ?? []).map((b) => `${b.title.toLowerCase().trim()}::${b.author.toLowerCase().trim()}`)
     );
 
     const recommendations = (parsed.recommendations ?? [])

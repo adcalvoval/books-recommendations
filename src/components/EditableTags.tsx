@@ -122,12 +122,14 @@ const EditableTags: React.FC<EditableTagsProps> = ({
                 }
               }}
               placeholder="Tag name..."
+              aria-label="New tag name"
               className="tag-input"
               maxLength={20}
             />
             <select
               value={newTagCategory}
               onChange={(e) => setNewTagCategory(e.target.value as BookTag['category'])}
+              aria-label="Tag category"
               className="tag-category-select"
             >
               <option value="theme">💡 Theme</option>
@@ -139,7 +141,7 @@ const EditableTags: React.FC<EditableTagsProps> = ({
               <option value="audience">👥 Audience</option>
               <option value="length">📏 Length</option>
             </select>
-            <button onClick={handleAddTag} className="tag-add-confirm">
+            <button onClick={handleAddTag} className="tag-add-confirm" aria-label="Confirm add tag">
               ✓
             </button>
           </div>
@@ -149,6 +151,7 @@ const EditableTags: React.FC<EditableTagsProps> = ({
               onClick={() => setIsEditing(true)}
               className="tag-add-button"
               title="Add custom tag"
+              aria-label="Add custom tag"
             >
               + Add Tag
             </button>

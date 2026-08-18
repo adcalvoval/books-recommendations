@@ -516,16 +516,24 @@ function App() {
         <p>Track your reading and discover your next favorite book</p>
       </header>
 
-      <nav className="app-nav">
-        <button 
+      <nav className="app-nav" role="tablist" aria-label="Sections">
+        <button
           className={activeTab === 'books' ? 'nav-btn active' : 'nav-btn'}
           onClick={() => setActiveTab('books')}
+          role="tab"
+          id="tab-books"
+          aria-selected={activeTab === 'books'}
+          aria-controls="panel-books"
         >
           My Books ({books.length})
         </button>
-        <button 
+        <button
           className={activeTab === 'recommendations' ? 'nav-btn active' : 'nav-btn'}
           onClick={() => setActiveTab('recommendations')}
+          role="tab"
+          id="tab-recommendations"
+          aria-selected={activeTab === 'recommendations'}
+          aria-controls="panel-recommendations"
         >
           Recommendations ({recommendations.length})
         </button>
@@ -533,7 +541,7 @@ function App() {
 
       <main className="app-main">
         {activeTab === 'books' && (
-          <div className="books-section">
+          <div className="books-section" id="panel-books" role="tabpanel" aria-labelledby="tab-books">
             <div className="section-header">
               <h2>Your Reading Library</h2>
               <div className="section-actions">
@@ -621,7 +629,7 @@ function App() {
         )}
 
         {activeTab === 'recommendations' && (
-          <div className="recommendations-section">
+          <div className="recommendations-section" id="panel-recommendations" role="tabpanel" aria-labelledby="tab-recommendations">
             <div className="section-header">
               <h2>{isSearchActive ? 'Search Results' : 'Personalized Recommendations'}</h2>
               <div className="section-actions">

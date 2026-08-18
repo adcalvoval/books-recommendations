@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { Book, BookFormData } from '../types';
 import StarRating from './StarRating';
 
@@ -20,6 +20,19 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
   const [notes, setNotes] = useState('');
   const [year, setYear] = useState(book.year || new Date().getFullYear());
   const [genre, setGenre] = useState(book.genre.join(', '));
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onCancel();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onCancel]);
 
   if (!isOpen) return null;
 
@@ -42,10 +55,16 @@ const AddBookModal: React.FC<AddBookModalProps> = ({
 
   return (
     <div className="modal-overlay" onClick={onCancel}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal-content"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-book-modal-title"
+      >
         <div className="modal-header">
-          <h3>Add to Your Library</h3>
-          <button onClick={onCancel} className="modal-close">✕</button>
+          <h3 id="add-book-modal-title">Add to Your Library</h3>
+          <button ref={closeButtonRef} onClick={onCancel} className="modal-close" aria-label="Close dialog">✕</button>
         </div>
         
         <form onSubmit={handleSubmit} className="add-book-form">
