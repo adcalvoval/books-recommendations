@@ -14,6 +14,7 @@ import {
   convertNYTBookToBook 
 } from './nytBooksApi';
 import { storage } from './storage';
+import { getClaudeRecommendations } from './claudeRecommendations';
 
 
 // Enhanced function to check if a book is already in user's library
@@ -502,6 +503,17 @@ export const getSearchBasedRecommendations = async (
   userBooks: Book[],
   searchType?: string
 ): Promise<BookRecommendation[]> => {
+  // Prefer Claude's natural-language understanding when it's available;
+  // fall back to keyword-based Google Books search otherwise.
+  try {
+    const claudeRecs = await getClaudeRecommendations(query, userBooks);
+    if (claudeRecs.length > 0) {
+      return claudeRecs;
+    }
+  } catch (error) {
+    console.warn('Claude recommendations unavailable, falling back to keyword search:', error);
+  }
+
   try {
     let googleBooks: any[] = [];
     let searchMethod = 'general';

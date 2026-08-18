@@ -47,7 +47,7 @@ A personalized book recommendation system that helps you discover new books base
 - **Build Tool:** Vite
 - **Styling:** CSS3 with Flexbox/Grid
 - **Storage:** Browser localStorage
-- **APIs:** Open Library, Google Books API
+- **APIs:** Open Library, Google Books API, Anthropic Claude (via a Vercel serverless function)
 - **Book Data:** Goodreads-compatible CSV format
 
 ## Getting Started
@@ -69,12 +69,19 @@ cd book-recommendations
 npm install
 ```
 
-3. Start the development server:
+3. (Optional, for AI-powered recommendations) Copy `.env.example` to `.env` and add your Claude API key from [console.anthropic.com](https://console.anthropic.com/):
+```bash
+cp .env.example .env
+```
+Without this, search recommendations fall back to keyword-based Google Books search automatically.
+
+4. Start the development server:
 ```bash
 npm run dev
 ```
+The `/api/recommendations` and `/api/health` routes only run under Vercel's dev server, not plain Vite. To test them locally, run `npx vercel dev` instead (first run `npx vercel link` to connect the project, then set `CLAUDE_API_KEY` via `npx vercel env pull` or the Vercel dashboard).
 
-4. Open your browser and navigate to `http://localhost:5173`
+5. Open your browser and navigate to `http://localhost:5173` (or the port `vercel dev` reports).
 
 ### Building for Production
 
