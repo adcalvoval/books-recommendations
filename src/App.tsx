@@ -70,15 +70,42 @@ function App() {
     setIsLoadingRecommendations(true);
     try {
       const dynamicRecs = await getDynamicRecommendations(userBooks);
-      setRecommendations(dynamicRecs);
+      if (dynamicRecs.length > 0) {
+        setRecommendations(dynamicRecs);
+        return;
+      }
     } catch (error) {
       console.error('Error loading dynamic recommendations:', error);
-      // Fallback to static recommendations
-      const staticRecs = getRecommendations(userBooks, sampleBooks);
-      setRecommendations(staticRecs);
     } finally {
       setIsLoadingRecommendations(false);
     }
+    // Reached whenever the dynamic (API-backed) pipeline threw or came back
+    // empty -- e.g. Google Books rate-limited an unauthenticated request.
+    // Always fall back to the local, network-free engine so something shows.
+    setRecommendations(getRecommendations(userBooks, sampleBooks));
+  };
+
+  // Search results depend on external APIs (Google Books, and optionally
+  // Claude) that can be rate-limited or unconfigured. Fall back to the
+  // local, network-free search engine whenever the dynamic path throws OR
+  // comes back empty -- an empty array is not an error, so relying on a
+  // try/catch alone silently drops the user's search.
+  const getSearchRecommendationsWithFallback = async (
+    criteria: SearchCriteria,
+    userBooks: Book[]
+  ): Promise<BookRecommendation[]> => {
+    try {
+      const { getSearchBasedRecommendations } = await import('./utils/dynamicRecommendations');
+      const dynamicRecs = await getSearchBasedRecommendations(criteria.query, userBooks, criteria.type);
+      if (dynamicRecs.length > 0) {
+        return dynamicRecs;
+      }
+    } catch (error) {
+      console.error('Error loading search recommendations:', error);
+    }
+
+    const { getSearchBasedRecommendations: staticSearch } = await import('./utils/searchRecommendations');
+    return staticSearch(criteria, userBooks, sampleBooks);
   };
 
   const updateRecommendations = async (userBooks: Book[], options?: { shuffle?: boolean; seed?: number; refresh?: boolean }) => {
@@ -86,14 +113,7 @@ function App() {
       // Use search-based recommendations with APIs
       setIsLoadingRecommendations(true);
       try {
-        const { getSearchBasedRecommendations } = await import('./utils/dynamicRecommendations');
-        const searchRecs = await getSearchBasedRecommendations(searchCriteria.query, userBooks);
-        setRecommendations(searchRecs);
-      } catch (error) {
-        console.error('Error loading search recommendations:', error);
-        // Fallback to static search
-        const { getSearchBasedRecommendations: staticSearch } = await import('./utils/searchRecommendations');
-        const searchRecs = staticSearch(searchCriteria, userBooks, sampleBooks);
+        const searchRecs = await getSearchRecommendationsWithFallback(searchCriteria, userBooks);
         setRecommendations(searchRecs);
       } finally {
         setIsLoadingRecommendations(false);
@@ -119,14 +139,7 @@ function App() {
     // Use dynamic API-based search
     setIsLoadingRecommendations(true);
     try {
-      const { getSearchBasedRecommendations } = await import('./utils/dynamicRecommendations');
-      const searchRecs = await getSearchBasedRecommendations(criteria.query, books, criteria.type);
-      setRecommendations(searchRecs);
-    } catch (error) {
-      console.error('Error loading search recommendations:', error);
-      // Fallback to static search
-      const { getSearchBasedRecommendations: staticSearch } = await import('./utils/searchRecommendations');
-      const searchRecs = staticSearch(criteria, books, sampleBooks);
+      const searchRecs = await getSearchRecommendationsWithFallback(criteria, books);
       setRecommendations(searchRecs);
     } finally {
       setIsLoadingRecommendations(false);
@@ -392,11 +405,8 @@ function App() {
       // For search results, refresh with new API results
       setIsLoadingRecommendations(true);
       try {
-        const { getSearchBasedRecommendations } = await import('./utils/dynamicRecommendations');
-        const searchRecs = await getSearchBasedRecommendations(searchCriteria.query, books);
+        const searchRecs = await getSearchRecommendationsWithFallback(searchCriteria, books);
         setRecommendations(searchRecs);
-      } catch (error) {
-        console.error('Error refreshing search recommendations:', error);
       } finally {
         setIsLoadingRecommendations(false);
       }

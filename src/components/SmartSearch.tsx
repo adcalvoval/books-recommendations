@@ -115,16 +115,14 @@ const SmartSearch: React.FC<SmartSearchProps> = ({
       keywords: searchQuery.split(' ').filter(word => word.length > 2)
     };
 
-    // Enhanced author search patterns
-    const authorPatterns = [
+    // Explicit, unambiguous author phrasing -- safe to check first since it
+    // requires a clear "by/author:/written by" signal, not just word count.
+    const explicitAuthorPatterns = [
       /(?:books?\s+by|author:?|written\s+by|from)\s+([^,.\n]+)/i,
-      /^([a-z]+\s+[a-z]+)$/i, // Just "First Last" format
-      /^([a-z]+\s+[a-z]+\s+[a-z]+)$/i, // "First Middle Last" format
-      /(?:want|read|looking\s+for|recommend).*?(?:by\s+)?([a-z]+\s+[a-z]+)/i,
       /([a-z]+\s+everett|percival\s+[a-z]+|stephen\s+king|toni\s+morrison|haruki\s+murakami)/i
     ];
 
-    for (const pattern of authorPatterns) {
+    for (const pattern of explicitAuthorPatterns) {
       const match = searchQuery.match(pattern);
       if (match) {
         criteria.type = 'author';
@@ -216,6 +214,26 @@ const SmartSearch: React.FC<SmartSearchProps> = ({
       if (lowerQuery.includes(genre)) {
         criteria.type = 'genre';
         criteria.genre = genre;
+        return criteria;
+      }
+    }
+
+    // Last resort: the query merely *looks* like a person's name ("First
+    // Last"). Checked after every more specific signal so common two/three
+    // -word descriptive queries (e.g. "science fiction", "cozy mystery",
+    // "space opera") aren't misrouted to an author search that can never
+    // match, which silently returns zero results.
+    const nameShapedPatterns = [
+      /^([a-z]+\s+[a-z]+)$/i, // "First Last"
+      /^([a-z]+\s+[a-z]+\s+[a-z]+)$/i, // "First Middle Last"
+      /(?:want|read|looking\s+for|recommend).*?(?:by\s+)?([a-z]+\s+[a-z]+)/i
+    ];
+
+    for (const pattern of nameShapedPatterns) {
+      const match = searchQuery.match(pattern);
+      if (match) {
+        criteria.type = 'author';
+        criteria.author = match[1].trim();
         return criteria;
       }
     }
