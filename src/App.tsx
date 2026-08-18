@@ -302,15 +302,14 @@ function App() {
     
     try {
       const enhancedBooks = await enhanceBooksWithSummaries(booksToEnhance);
-      
-      // Update books with summaries
-      const updatedBooks = books.map(book => {
+
+      // Update books with summaries (functional update: avoids clobbering
+      // state changes, e.g. a CSV import, that happened while this awaited)
+      setBooks(prevBooks => prevBooks.map(book => {
         const enhanced = enhancedBooks.find(e => e.id === book.id);
         return enhanced ? { ...book, summary: enhanced.summary } : book;
-      });
-      
-      setBooks(updatedBooks);
-      
+      }));
+
       // Update storage with summaries
       enhancedBooks.forEach(book => {
         if (book.summary) {
@@ -337,22 +336,22 @@ function App() {
     
     try {
       const bookTagsMap = await generateTagsForBooks(books);
-      
-      // Update books with generated tags
-      const updatedBooks = books.map(book => {
-        const tags = bookTagsMap.get(book.id);
-        return tags ? { ...book, tags } : book;
+
+      // Update books with generated tags (functional update: avoids
+      // clobbering state changes that happened while this awaited)
+      setBooks(prevBooks => {
+        const updated = prevBooks.map(book => {
+          const tags = bookTagsMap.get(book.id);
+          return tags ? { ...book, tags } : book;
+        });
+        updated.forEach(book => {
+          if (book.tags) {
+            storage.updateBook(book);
+          }
+        });
+        return updated;
       });
-      
-      setBooks(updatedBooks);
-      
-      // Save updated books to storage
-      updatedBooks.forEach(book => {
-        if (book.tags) {
-          storage.updateBook(book);
-        }
-      });
-      
+
     } catch (error) {
       console.error('Error generating tags:', error);
     } finally {
@@ -363,22 +362,22 @@ function App() {
   const generateTagsForImportedBooks = async (importedBooks: Book[]) => {
     try {
       const bookTagsMap = await generateTagsForBooks(importedBooks);
-      
-      // Update books with generated tags
-      const updatedBooks = books.map(book => {
-        const tags = bookTagsMap.get(book.id);
-        return tags ? { ...book, tags } : book;
+
+      // Update books with generated tags (functional update: avoids
+      // clobbering state changes that happened while this awaited)
+      setBooks(prevBooks => {
+        const updated = prevBooks.map(book => {
+          const tags = bookTagsMap.get(book.id);
+          return tags ? { ...book, tags } : book;
+        });
+        updated.forEach(book => {
+          if (book.tags) {
+            storage.updateBook(book);
+          }
+        });
+        return updated;
       });
-      
-      setBooks(updatedBooks);
-      
-      // Save updated books to storage
-      updatedBooks.forEach(book => {
-        if (book.tags) {
-          storage.updateBook(book);
-        }
-      });
-      
+
     } catch (error) {
       console.error('Error generating tags for imported books:', error);
     }
@@ -415,29 +414,26 @@ function App() {
     try {
       const booksWithoutCovers = books.filter(book => !book.coverUrl);
       const coverMap = await fetchBookCovers([...booksWithoutCovers, ...recommendations]);
-      
-      // Update books with covers
-      const updatedBooks = books.map(book => {
-        const coverUrl = coverMap.get(book.id);
-        return coverUrl ? { ...book, coverUrl } : book;
+
+      // Update books and recommendations with covers (functional update:
+      // avoids clobbering state changes that happened while this awaited)
+      setBooks(prevBooks => {
+        const updated = prevBooks.map(book => {
+          const coverUrl = coverMap.get(book.id);
+          return coverUrl ? { ...book, coverUrl } : book;
+        });
+        updated.forEach(book => {
+          if (book.coverUrl) {
+            storage.updateBook(book);
+          }
+        });
+        return updated;
       });
-      
-      // Update recommendations with covers
-      const updatedRecommendations = recommendations.map(rec => {
+      setRecommendations(prevRecs => prevRecs.map(rec => {
         const coverUrl = coverMap.get(rec.id);
         return coverUrl ? { ...rec, coverUrl } : rec;
-      });
-      
-      setBooks(updatedBooks);
-      setRecommendations(updatedRecommendations);
-      
-      // Save updated books to storage
-      updatedBooks.forEach(book => {
-        if (book.coverUrl) {
-          storage.updateBook(book);
-        }
-      });
-      
+      }));
+
     } catch (error) {
       console.error('Error fetching covers:', error);
     } finally {
@@ -451,23 +447,23 @@ function App() {
     try {
       // Refresh covers for all books using Google Books API
       const coverMap = await refreshLibraryCoversWithGoogleBooks(books);
-      
+
       if (coverMap.size > 0) {
-        // Update books with new covers
-        const updatedBooks = books.map(book => {
-          const coverUrl = coverMap.get(book.id);
-          return coverUrl ? { ...book, coverUrl } : book;
+        // Update books with new covers (functional update: avoids
+        // clobbering state changes that happened while this awaited)
+        setBooks(prevBooks => {
+          const updated = prevBooks.map(book => {
+            const coverUrl = coverMap.get(book.id);
+            return coverUrl ? { ...book, coverUrl } : book;
+          });
+          updated.forEach(book => {
+            if (coverMap.has(book.id)) {
+              storage.updateBook(book);
+            }
+          });
+          return updated;
         });
-        
-        setBooks(updatedBooks);
-        
-        // Save updated books to storage
-        updatedBooks.forEach(book => {
-          if (coverMap.has(book.id)) {
-            storage.updateBook(book);
-          }
-        });
-        
+
         alert(`Successfully updated ${coverMap.size} book covers with Google Books images!`);
       } else {
         alert('No cover updates found. Your books already have the best available covers.');
@@ -485,22 +481,22 @@ function App() {
     try {
       // Use Google Books for imported books to get high-quality covers
       const coverMap = await refreshLibraryCoversWithGoogleBooks(importedBooks);
-      
-      // Update books with covers
-      const updatedBooks = books.map(book => {
-        const coverUrl = coverMap.get(book.id);
-        return coverUrl ? { ...book, coverUrl } : book;
+
+      // Update books with covers (functional update: avoids clobbering
+      // state changes that happened while this awaited)
+      setBooks(prevBooks => {
+        const updated = prevBooks.map(book => {
+          const coverUrl = coverMap.get(book.id);
+          return coverUrl ? { ...book, coverUrl } : book;
+        });
+        updated.forEach(book => {
+          if (book.coverUrl) {
+            storage.updateBook(book);
+          }
+        });
+        return updated;
       });
-      
-      setBooks(updatedBooks);
-      
-      // Save updated books to storage
-      updatedBooks.forEach(book => {
-        if (book.coverUrl) {
-          storage.updateBook(book);
-        }
-      });
-      
+
     } catch (error) {
       console.error('Error fetching covers for imported books:', error);
     }
